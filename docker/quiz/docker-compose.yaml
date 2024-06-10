@@ -1,0 +1,63 @@
+services:
+  quiz1:
+    image: ashleylai/quiz:1
+    container_name: quiz1
+    ports:
+      - 3001:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: fluentd:24224
+        tag: '{{.Name}}'
+  quiz2.1:
+    image: ashleylai/quiz:2.1
+    container_name: quiz2.1
+    ports:
+      - 30021:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: fluentd:24224
+        tag: '{{.Name}}'
+  quiz2.2:
+    image: ashleylai/quiz:2.2
+    container_name: quiz2.2
+    ports:
+      - 30022:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: fluentd:24224
+        tag: '{{.Name}}'
+  quiz3:
+    image: ashleylai/quiz:3
+    container_name: quiz3
+    ports:
+      - 3003:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: fluentd:24224
+        tag: '{{.Name}}'
+  quiz4:
+    image: ashleylai/quiz:4
+    container_name: quiz4
+    ports:
+      - 3004:80
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: fluentd:24224
+        tag: '{{.Name}}'
+  quiz5:
+    image: ashleylai/quiz:5
+    container_name: quiz5
+    ports:
+      - 3005:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: fluentd:24224
+        tag: '{{.Name}}'
+networks:
+  quiz_network:

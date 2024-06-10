@@ -1,0 +1,129 @@
+services:
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+      - prom_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    restart: always
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      - redis
+  fluentd:
+    image: fluent/fluentd:v1.17
+    container_name: fluentd
+    ports:
+      - 24224:24224
+    volumes:
+      - ./fluentd.conf:/fluentd/etc/fluentd.conf
+    environment:
+      - FLUENTD_CONF=fluentd.conf
+    networks:
+      - quiz_network
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 8000:80
+  otelcol:
+    image: otel/opentelemetry-collector
+    restart: always
+    depends_on:
+      - prometheus
+    ports:
+      - 4317:4317
+    volumes:
+      # Mount the otelcol.yml config file
+      - ./otelcol.yml:/etc/otelcol/config.yaml
+  quiz1:
+    image: ashleylai/quiz:1
+    container_name: quiz1
+    ports:
+      - 3001:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: localhost:24224
+        tag: '{{.Name}}'
+  quiz2.1:
+    image: ashleylai/quiz:2.1
+    container_name: quiz2.1
+    ports:
+      - 30021:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: localhost:24224
+        tag: '{{.Name}}'
+  quiz2.2:
+    image: ashleylai/quiz:2.2
+    container_name: quiz2.2
+    ports:
+      - 30022:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: localhost:24224
+        tag: '{{.Name}}'
+  quiz3:
+    image: ashleylai/quiz:3
+    container_name: quiz3
+    ports:
+      - 3003:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: localhost:24224
+        tag: '{{.Name}}'
+  quiz4:
+    image: ashleylai/quiz:4
+    container_name: quiz4
+    ports:
+      - 3004:80
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: localhost:24224
+        tag: '{{.Name}}'
+  quiz5:
+    image: ashleylai/quiz:5
+    container_name: quiz5
+    ports:
+      - 3005:3000
+    logging:
+      driver: 'fluentd'
+      options:
+        fluentd-address: localhost:24224
+        tag: '{{.Name}}'
+volumes:
+  grafana-storage: {}
+  prom_data: {}
+networks:
+  quiz_network:
