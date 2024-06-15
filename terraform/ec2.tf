@@ -107,7 +107,7 @@ resource "null_resource" "scp_docker" {
     host        = aws_instance.cheap_worker.public_ip
   }
   provisioner "file" {
-    source      = "../docker"
+    source      = "../docker-azole"
     destination = "/home/ubuntu"
   }
   provisioner "remote-exec" {
